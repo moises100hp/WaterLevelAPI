@@ -22,9 +22,7 @@ var app = builder.Build();
 //if (app.Environment.IsDevelopment())
 //{
     app.UseSwagger();
-app.UseSwaggerUI( c => {
-    c.RoutePrefix = string.Empty;
-});
+app.UseSwaggerUI();
 //}
 
 app.UseHttpsRedirection();
@@ -32,5 +30,11 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    dbContext.Database.EnsureCreated();
+}
 
 app.Run();
