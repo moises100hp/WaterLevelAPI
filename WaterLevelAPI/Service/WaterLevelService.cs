@@ -11,8 +11,7 @@ namespace WaterLevelAPI.Service
 
         private readonly ILogger<WaterLevelService> _logger;
 
-        public WaterLevelService(AppDbContext context
-            )
+        public WaterLevelService(AppDbContext context)
         {
             _context = context;
 
@@ -22,7 +21,6 @@ namespace WaterLevelAPI.Service
         {
             if(waterLevelDTO.CurrentLevel > waterLevelDTO.MaxLevel || waterLevelDTO.CurrentLevel < waterLevelDTO.MinLevel)
             {
-                _logger.LogWarning("Nível de água fora dos limites definidos para o dispositivo {DeviceId}.", waterLevelDTO.DeviceId);
                 throw new ArgumentException("Nível de água fora dos limites definidos.");
             }
 
