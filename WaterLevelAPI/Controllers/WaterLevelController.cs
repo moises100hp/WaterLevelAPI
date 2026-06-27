@@ -19,8 +19,20 @@ namespace WaterLevelAPI.Controllers
         [HttpPost(Name = "telemetry")]
         public async Task<IActionResult> RegisterLevel(WaterLevelDTO waterLevelDTO)
         {
-            await _service.RegisterLevelAsync(waterLevelDTO);
-            return Accepted();
+            try
+            {
+                await _service.RegisterLevelAsync(waterLevelDTO);
+                return Accepted();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = ex.Message });
+            }
         }
 
         [HttpGet(Name = "current")]
