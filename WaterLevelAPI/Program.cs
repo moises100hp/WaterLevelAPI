@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using WaterLevelAPI.Context;
+using WaterLevelAPI.Hubs;
 using WaterLevelAPI.Service;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,6 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddScoped<IWaterLevelService, WaterLevelService>();
+
+builder.Services.AddSignalR();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -30,6 +33,8 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHub<WaterLevelHub>("/waterLevelHub");
 
 using (var scope = app.Services.CreateScope())
 {

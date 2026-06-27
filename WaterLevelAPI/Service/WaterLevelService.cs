@@ -1,5 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using WaterLevelAPI.Context;
+using WaterLevelAPI.Controllers;
+using WaterLevelAPI.Hubs;
 using WaterLevelAPI.Model;
 
 namespace WaterLevelAPI.Service
@@ -7,10 +10,16 @@ namespace WaterLevelAPI.Service
     public class WaterLevelService : IWaterLevelService
     {
         private readonly AppDbContext _context;
+        private readonly IHubContext<WaterLevelHub> _hubContext;
+        private readonly ILogger<WaterLevelService> _logger;
 
-        public WaterLevelService(AppDbContext context) => _context = context;
+        public WaterLevelService(AppDbContext context, IHubContext<WaterLevelHub> hubContext)
+        {
+            _context = context;
+            _hubContext = hubContext;
+        }
 
-        public Task RegisterLevelAsync(WaterLevelDTO waterLevelDTO)
+        public async Task RegisterLevelAsync(WaterLevelDTO waterLevelDTO)
         {
             if(waterLevelDTO.CurrentLevel < 0) throw new ArgumentException("Nivel inválido. O nível de água não pode ser negativo.");
 
@@ -24,7 +33,16 @@ namespace WaterLevelAPI.Service
             };
 
             _context.WaterLevels.Add(waterLevel);
-            return _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
+
+            try
+            {
+                await _hubContext.Clients.All.SendAsync("ReceiveWaterLevel", waterLevelDTO);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao enviar nível de água via SignalR.");
+            }
         }
 
         public async Task<WaterLevelDTO> GetLevelAsync(int deviceId)
