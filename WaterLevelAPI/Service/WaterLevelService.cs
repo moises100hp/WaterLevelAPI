@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using WaterLevelAPI.Context;
-using WaterLevelAPI.Controllers;
-using WaterLevelAPI.Hubs;
 using WaterLevelAPI.Model;
 
 namespace WaterLevelAPI.Service
@@ -10,13 +8,14 @@ namespace WaterLevelAPI.Service
     public class WaterLevelService : IWaterLevelService
     {
         private readonly AppDbContext _context;
-        private readonly IHubContext<WaterLevelHub> _hubContext;
+
         private readonly ILogger<WaterLevelService> _logger;
 
-        public WaterLevelService(AppDbContext context, IHubContext<WaterLevelHub> hubContext)
+        public WaterLevelService(AppDbContext context
+            )
         {
             _context = context;
-            _hubContext = hubContext;
+
         }
 
         public async Task RegisterLevelAsync(WaterLevelDTO waterLevelDTO)
@@ -41,14 +40,6 @@ namespace WaterLevelAPI.Service
             _context.WaterLevels.Add(waterLevel);
             await _context.SaveChangesAsync();
 
-            try
-            {
-                await _hubContext.Clients.All.SendAsync("ReceiveWaterLevel", waterLevelDTO);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao enviar nível de água via SignalR.");
-            }
         }
 
         public async Task<WaterLevelDTO> GetLevelAsync(int deviceId)

@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using WaterLevelAPI.Context;
-using WaterLevelAPI.Hubs;
 using WaterLevelAPI.Service;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -34,7 +33,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.MapHub<WaterLevelHub>("/waterLevelHub");
 
 using (var scope = app.Services.CreateScope())
 {
