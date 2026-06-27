@@ -21,7 +21,13 @@ namespace WaterLevelAPI.Service
 
         public async Task RegisterLevelAsync(WaterLevelDTO waterLevelDTO)
         {
-            if(waterLevelDTO.CurrentLevel < 0) throw new ArgumentException("Nivel inválido. O nível de água não pode ser negativo.");
+            if(waterLevelDTO.CurrentLevel > waterLevelDTO.MaxLevel || waterLevelDTO.CurrentLevel < waterLevelDTO.MinLevel)
+            {
+                _logger.LogWarning("Nível de água fora dos limites definidos para o dispositivo {DeviceId}.", waterLevelDTO.DeviceId);
+                throw new ArgumentException("Nível de água fora dos limites definidos.");
+            }
+
+            if (waterLevelDTO.CurrentLevel < 0) throw new ArgumentException("Nivel inválido. O nível de água não pode ser negativo.");
 
             var waterLevel = new WatterLevel
             {
