@@ -1,0 +1,6 @@
+@WaterLevelAPI_HostAddress = http://localhost:5042
+
+GET {{WaterLevelAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
