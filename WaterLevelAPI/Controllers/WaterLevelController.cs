@@ -16,8 +16,8 @@ namespace WaterLevelAPI.Controllers
             _service = service;
         }
 
-        [HttpPost(Name = "telemetry")]
-        public async Task<IActionResult> RegisterLevel(WaterLevelDTO waterLevelDTO)
+        [HttpPost]
+        public async Task<IActionResult> RegisterLevel([FromBody] WaterLevelDTO waterLevelDTO)
         {
             try
             {
@@ -35,12 +35,38 @@ namespace WaterLevelAPI.Controllers
             }
         }
 
-        [HttpGet(Name = "current")]
-        public async Task<IActionResult> GetCurrentLevel(int deviceId)
+        [HttpGet("current")]
+        public async Task<IActionResult> GetCurrentLevel(string deviceId)
         {
             var result = await _service.GetLevelAsync(deviceId);
             return Accepted(result);
         }
 
+        [HttpGet("status-device")]
+        public async Task<IActionResult> GetStatusDevice(string deviceId)
+        {
+            var result = await _service.GetStatusDevice(deviceId);
+
+            return Accepted(result);
+        }
+
+        [HttpPost("status-device")]
+        public async Task<IActionResult> SetStatusDevice([FromBody] PendingChangesDTO changesDTO)
+        {
+            try
+            {
+                await _service.SetStatusDevice(changesDTO);
+                return Accepted();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = ex.Message });
+            }
+        }
     }
 }
