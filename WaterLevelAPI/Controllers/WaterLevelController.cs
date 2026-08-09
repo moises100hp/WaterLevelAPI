@@ -16,7 +16,8 @@ namespace WaterLevelAPI.Controllers
             _service = service;
         }
 
-        [HttpPost(Name = "telemetry")]
+        // POST api/waterlevel
+        [HttpPost]
         public async Task<IActionResult> RegisterLevel(WaterLevelDTO waterLevelDTO)
         {
             try
@@ -26,21 +27,28 @@ namespace WaterLevelAPI.Controllers
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(new { Message = ex.Message });
-
+                return BadRequest(new { ex.Message });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { Message = ex.Message });
+                _logger.LogError(ex, "Erro ao registrar leitura do dispositivo {DeviceId}", waterLevelDTO.DeviceId);
+                return StatusCode(500, new { Message = "Erro interno ao registrar a leitura." });
             }
         }
 
-        [HttpGet(Name = "current")]
-        public async Task<IActionResult> GetCurrentLevel(int deviceId)
+        // GET api/waterlevel?deviceId=esp32-01
+        [HttpGet]
+        public async Task<IActionResult> GetCurrentLevel([FromQuery] string deviceId)
         {
-            var result = await _service.GetLevelAsync(deviceId);
-            return Accepted(result);
-        }
+            if (string.IsNullOrWhiteSpace(deviceId))
+                return BadRequest(new { Message = "Informe o deviceId." });
 
+            var result = await _service.GetLevelAsync(deviceId);
+
+            if (result is null)
+                return NotFound(new { Message = "Nenhuma leitura encontrada para o dispositivo especificado." });
+
+            return Ok(result); // 200, não 202: é uma consulta, não um processamento assíncrono
+        }
     }
 }

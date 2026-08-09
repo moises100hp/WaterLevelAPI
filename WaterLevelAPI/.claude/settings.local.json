@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet restore *)",
+      "Bash(dotnet build *)",
+      "Bash(dotnet build-server *)",
+      "Bash(python3 -c ' *)",
+      "Bash(sqlite3 WaterLevel.db \".tables\")"
+    ]
+  }
+}
