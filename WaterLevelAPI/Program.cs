@@ -13,7 +13,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // CORS: necessário se o front (ou qualquer página no navegador) chamar a API de outro domínio
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy =>
+    options.AddPolicy("AllowAll", policy =>
         policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 });
 
@@ -31,7 +31,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors();
+app.UseCors("AllowAll");
 
 app.UseAuthorization();
 
