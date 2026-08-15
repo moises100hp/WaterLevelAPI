@@ -13,6 +13,7 @@
          e Microsoft.AspNetCore.SignalR.Client 10.0.9 (para .NET 10, incompatível com net8.0).
          O SignalR servidor já vem embutido no ASP.NET Core 8 — se você for adicionar um hub
          no futuro, basta usar builder.Services.AddSignalR() e app.MapHub<T>() sem pacote extra. -->
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.28">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

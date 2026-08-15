@@ -8,6 +8,7 @@ namespace WaterLevelAPI.Context
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
         public DbSet<WatterLevel> WaterLevels => Set<WatterLevel>();
         public DbSet<DeviceCommand> DeviceCommands => Set<DeviceCommand>();
+        public DbSet<User> Users => Set<User>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
