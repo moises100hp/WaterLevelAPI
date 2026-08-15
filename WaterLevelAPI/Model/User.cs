@@ -29,6 +29,8 @@ namespace WaterLevelAPI.Model
 
         public UserRole Role { get; set; } = UserRole.User;
 
+        public bool IsActive { get; set; } = true;
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

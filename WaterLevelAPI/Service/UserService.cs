@@ -29,16 +29,6 @@ namespace WaterLevelAPI.Service
             if (string.IsNullOrWhiteSpace(userRegisterDTO.Password) || userRegisterDTO.Password.Length < 6)
                 throw new ArgumentException("Senha deve ter pelo menos 6 caracteres.");
 
-            var normalizedRole = userRegisterDTO.Role?.Trim();
-            if (string.IsNullOrWhiteSpace(normalizedRole))
-                normalizedRole = "User";
-
-            if (!Enum.TryParse<UserRole>(normalizedRole, true, out var role) ||
-                (role != UserRole.User && role != UserRole.Admin))
-            {
-                throw new ArgumentException("Perfil inválido. Use 'User' ou 'Admin'.");
-            }
-
             var normalizedEmail = userRegisterDTO.Email.Trim();
 
             var exists = await _context.Users
@@ -55,14 +45,13 @@ namespace WaterLevelAPI.Service
                 Email = normalizedEmail,
                 PasswordHash = hash,
                 PasswordSalt = salt,
-                Role = role,
                 CreatedAt = DateTime.UtcNow
             };
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            _logger.LogInformation("Usuário cadastrado com sucesso: {Email} ({Role})", user.Email, user.Role);
+            _logger.LogInformation("Usuário cadastrado com sucesso: {Email}", user.Email);
         }
 
         public async Task<User> LoginAsync(UserLoginDTO userLoginDTO)
@@ -111,23 +100,23 @@ namespace WaterLevelAPI.Service
             var temporaryPassword = PasswordHelper.GenerateTemporaryPassword();
             var (hash, salt) = PasswordHelper.HashPassword(temporaryPassword);
 
+            await EmailService.SendPasswordResetEmailAsync(user.Email, temporaryPassword);
+
             user.PasswordHash = hash;
             user.PasswordSalt = salt;
 
             await _context.SaveChangesAsync();
 
-            await EmailService.SendPasswordResetEmailAsync(user.Email, temporaryPassword);
-
             _logger.LogInformation("Senha temporária enviada para o usuário {Email}", user.Email);
         }
 
-        public async Task ChangePasswordAsync(ChangePasswordDTO changePasswordDTO)
+        public async Task ChangePasswordAsync(int userId, ChangePasswordDTO changePasswordDTO)
         {
             if (changePasswordDTO is null)
                 throw new ArgumentException("Dados para alteração de senha são obrigatórios.");
 
-            if (string.IsNullOrWhiteSpace(changePasswordDTO.Email))
-                throw new ArgumentException("E-mail é obrigatório.");
+            if (userId <= 0)
+                throw new ArgumentException("Usuário autenticado inválido.");
 
             if (string.IsNullOrWhiteSpace(changePasswordDTO.CurrentPassword))
                 throw new ArgumentException("Senha atual é obrigatória.");
@@ -135,10 +124,8 @@ namespace WaterLevelAPI.Service
             if (string.IsNullOrWhiteSpace(changePasswordDTO.NewPassword) || changePasswordDTO.NewPassword.Length < 6)
                 throw new ArgumentException("Nova senha deve ter pelo menos 6 caracteres.");
 
-            var normalizedEmail = changePasswordDTO.Email.Trim();
-
             var user = await _context.Users
-                .FirstOrDefaultAsync(x => x.Email.ToLower() == normalizedEmail.ToLower());
+                .FirstOrDefaultAsync(x => x.Id == userId);
 
             if (user is null)
                 throw new ArgumentException("Usuário não encontrado.");
@@ -165,6 +152,14 @@ namespace WaterLevelAPI.Service
             return await _context.Users
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == id);
+        }
+
+        public async Task<List<User>> GetAllAsync()
+        {
+            return await _context.Users
+                .AsNoTracking()
+                .OrderBy(x => x.Name)
+                .ToListAsync();
         }
     }
 }

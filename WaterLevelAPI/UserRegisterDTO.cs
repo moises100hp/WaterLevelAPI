@@ -15,7 +15,5 @@ namespace WaterLevelAPI
         [Required(ErrorMessage = "Senha é obrigatória.")]
         [MinLength(6, ErrorMessage = "Senha deve ter pelo menos 6 caracteres.")]
         public string Password { get; set; } = string.Empty;
-
-        public string Role { get; set; } = "User";
     }
 }

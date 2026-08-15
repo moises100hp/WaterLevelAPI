@@ -15,11 +15,13 @@ namespace WaterLevelAPI.Service
 
             if (string.IsNullOrWhiteSpace(smtpUser) || string.IsNullOrWhiteSpace(smtpPassword))
             {
-                Console.WriteLine($"[EmailService] Simulação de envio: senha temporária para {email} => {temporaryPassword}");
-                return;
+                throw new InvalidOperationException("SMTP não está configurado para recuperação de senha.");
             }
 
-            using var client = new SmtpClient(smtpHost, int.Parse(smtpPortText))
+            if (!int.TryParse(smtpPortText, out var smtpPort))
+                throw new InvalidOperationException("SMTP_PORT inválida.");
+
+            using var client = new SmtpClient(smtpHost, smtpPort)
             {
                 EnableSsl = true,
                 Credentials = new NetworkCredential(smtpUser, smtpPassword)

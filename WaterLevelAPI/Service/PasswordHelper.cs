@@ -40,12 +40,11 @@ namespace WaterLevelAPI.Service
         public static string GenerateTemporaryPassword()
         {
             const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";
-            var random = new Random();
             var password = new char[10];
 
             for (var i = 0; i < password.Length; i++)
             {
-                password[i] = chars[random.Next(chars.Length)];
+                password[i] = chars[RandomNumberGenerator.GetInt32(chars.Length)];
             }
 
             return new string(password);

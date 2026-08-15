@@ -92,7 +92,12 @@ namespace WaterLevelAPI.Controllers
         {
             try
             {
-                await _service.ChangePasswordAsync(changePasswordDTO);
+                var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+                if (string.IsNullOrWhiteSpace(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+                    return Unauthorized(new { Message = "Token inválido." });
+
+                await _service.ChangePasswordAsync(userId, changePasswordDTO);
                 return Ok(new { Message = "Senha alterada com sucesso." });
             }
             catch (ArgumentException ex)
@@ -155,6 +160,32 @@ namespace WaterLevelAPI.Controllers
         public IActionResult AdminOnly()
         {
             return Ok(new { Message = "Acesso liberado para administradores." });
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("users")]
+        public async Task<IActionResult> GetUsers()
+        {
+            try
+            {
+                var users = await _service.GetAllAsync();
+
+                var result = users.Select(u => new
+                {
+                    u.Id,
+                    u.Name,
+                    u.Email,
+                    u.Role,
+                    Status = u.IsActive ? "Ativo" : "Inativo"
+                });
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao listar usuários");
+                return StatusCode(500, new { Message = "Erro interno ao listar usuários." });
+            }
         }
     }
 }

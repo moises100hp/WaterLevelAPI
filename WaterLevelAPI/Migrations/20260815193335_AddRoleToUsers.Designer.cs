@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WaterLevelAPI.Context;
 
@@ -10,9 +11,11 @@ using WaterLevelAPI.Context;
 namespace WaterLevelAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260815193335_AddRoleToUsers")]
+    partial class AddRoleToUsers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.28");
@@ -54,9 +57,6 @@ namespace WaterLevelAPI.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("TEXT");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
                         .IsRequired()
